@@ -1,4 +1,5 @@
-require('dotenv').config()
+
+require('dotenv').config(process.cwd())
 
 const express = require('express')
 const bodyParser = require('body-parser')
