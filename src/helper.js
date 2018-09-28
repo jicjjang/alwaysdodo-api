@@ -1,9 +1,9 @@
-exports.sendFailure = function (req, res, err) {
+exports.sendFailure = function (res, err) {
     var code = (err.code) ? err.code : err.name;
     res.writeHead(400, {
         "Content-Type": "application/json;charset=UTF-8"
     })
-    
+
     var output = {
         success: false,
         error: code,
@@ -12,7 +12,7 @@ exports.sendFailure = function (req, res, err) {
     res.end(JSON.stringify(output))
 }
 
-exports.sendSuccess = function (req, res, datas) {
+exports.sendSuccess = function (res, datas) {
     res.writeHead(200, {
         "Content-Type": "application/json;charset=UTF-8"
     })
@@ -26,7 +26,7 @@ exports.error = function (code, message) {
     return e
 }
 
-exports.sendTokenFail = function (req, res) {
+exports.sendTokenFail = function (res) {
     res.writeHead(403, {
         "Content-Type": "application/json;charset=UTF-8"
     })

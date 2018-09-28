@@ -29,15 +29,18 @@ module.exports = function (app) {
     app.get('/registries', async (req, res) => {
         try {
             const rows = await pool.select("SELECT * FROM registries")
-            helper.sendSuccess(req, res, rows.map(({id, name, value}) => {
-                try {
-                    return {id, name, value: JSON.parse(value)}
-                } catch (e) {
-                    return {id, name, value}
-                }
-            }))
+            helper.sendSuccess(res, {
+                success: true,
+                registries: rows.map(({id, name, value}) => {
+                    try {
+                        return {id, name, value: JSON.parse(value)}
+                    } catch (e) {
+                        return {id, name, value}
+                    }
+                })
+            })
         } catch (err) {
-            helper.sendFailure(req, res, err)
+            helper.sendFailure(res, err)
         }
     });
 
@@ -48,12 +51,12 @@ module.exports = function (app) {
     app.post('/registries', authMiddleware, async ({body: {name, value}}, res) => {
         try {
             await pool.query(`INSERT INTO registries (name, value) VALUES (?, ?)`, [name, JSON.stringify(value)])
-            helper.sendSuccess(req, res, {
+            helper.sendSuccess(res, {
                 success: true,
                 message: "success insert"
             })
         } catch (err) {
-            helper.sendFailure(req, res, err)
+            helper.sendFailure(res, err)
         }
     });
 
@@ -64,17 +67,17 @@ module.exports = function (app) {
 
     app.put('/registries/:id', authMiddleware, async ({params: {id}, body: {name, value}}, res) => {
         if (!name || !value) {
-            helper.sendFailure(req, res, helper.error("400", "invalidRequest"))
+            helper.sendFailure(res, helper.error("400", "invalidRequest"))
             return
         }
         try {
             await pool.query(`UPDATE registries SET name=?, value =? WHERE id=?`, [name, JSON.stringify(value), id])
-            helper.sendSuccess(req, res, {
+            helper.sendSuccess(res, {
                 success: true,
                 message: "success update"
             })
         } catch (err) {
-            helper.sendFailure(req, res, err)
+            helper.sendFailure(res, err)
         }
     });
 
@@ -86,22 +89,32 @@ module.exports = function (app) {
     app.delete('/registries/:id', authMiddleware, async ({params: {id}}, res) => {
         try {
             await pool.query(`DELETE FROM registries WHERE id = ?`, [id])
-            helper.sendSuccess(req, res, {
+            helper.sendSuccess(res, {
                 success: true,
                 message: "success delete"
             })
         } catch (err) {
-            helper.sendFailure(req, res, err)
+            helper.sendFailure(res, err)
         }
     });
 
     /**
      * POST /auth/login -> username / password 처리 -> JWT 토큰 반환, exp(24시간?) 반드시 추가할 것!
      */
-
+    app.get('/auth/manager', authMiddleware, async (_, res) => {
+        helper.sendSuccess(res, {
+            success: true,
+        })
+    })
+    app.post('/auth/logout', async (_, res) => {
+        // todo 
+        helper.sendSuccess(res, {
+            success: true,
+        })
+    })
     app.post('/auth/login', async ({body: {username, password}}, res) => {
         if (!username || !password || username !== process.env.MANAGER_USERNAME || password !== process.env.MANAGER_PASSWORD) {
-            helper.sendFailure(req, res, helper.error("400", "invalidRequest"))
+            helper.sendFailure(res, helper.error("400", "invalidRequest"))
             return
         }
         const secret = req.app.get('jwt-secret')
@@ -122,12 +135,12 @@ module.exports = function (app) {
                 )
     
             })    
-            helper.sendSuccess(req, res, {
+            helper.sendSuccess(res, {
                 success: true,
                 token: token
             })
         } catch (e) {
-            helper.sendFailure(req, res, helper.error("500", "something wrong.."))
+            helper.sendFailure(res, helper.error("500", "something wrong.."))
         }
     });
 };
