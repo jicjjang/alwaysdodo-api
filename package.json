@@ -1,0 +1,29 @@
+{
+  "name": "alwaysdodo-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/entry.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alwaysdodo/alwaysdodo-api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alwaysdodo/alwaysdodo-api/issues"
+  },
+  "homepage": "https://github.com/alwaysdodo/alwaysdodo-api#readme",
+  "dependencies": {
+    "async-db-adapter": "^0.5.1",
+    "body-parser": "^1.18.3",
+    "dotenv": "^6.0.0",
+    "express": "^4.16.3",
+    "jsonwebtoken": "^8.3.0",
+    "mysql2": "^1.6.1",
+    "nodemon": "^1.18.4",
+    "npm": "^6.4.1"
+  }
+}
