@@ -26,14 +26,14 @@ exports.error = function (code, message) {
     return e
 }
 
-exports.sendTokenFail = function (res) {
+exports.sendTokenFail = function (res, message) {
     res.writeHead(403, {
         "Content-Type": "application/json;charset=UTF-8"
     })
 
     var output = {
         success: false,
-        message: "invalide token"
+        message: message || "invalide token"
     }
     res.end(JSON.stringify(output))
 }
