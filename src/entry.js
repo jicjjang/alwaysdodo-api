@@ -10,8 +10,6 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use(cors())
 
-app.set('jwt-secret', process.env.JWT_SECRET)
-
 /* router */
 require("./router")(app)
 

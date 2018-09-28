@@ -117,7 +117,7 @@ module.exports = function (app) {
             helper.sendFailure(res, helper.error("400", "invalidRequest"))
             return
         }
-        const secret = req.app.get('jwt-secret')
+        const secret = process.env.JWT_SECRET
         try {
             const token = await new Promise((resolve, reject) => {
                 jwt.sign({
