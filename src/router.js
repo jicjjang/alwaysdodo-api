@@ -1,25 +1,9 @@
+
 const jwt = require("jsonwebtoken")
-const db = require("async-db-adapter")
 const helper = require("./helper")
 const authMiddleware = require("./auth")
 
-const pool = db.create({
-    adapter: "mysql2",
-    pool: true,
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_DATABASE,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-})
-
-/*
-
-*/
-
-module.exports = function (app) {
+module.exports = function (app, connection) {
 
     /**
      * AUTH : public 
@@ -28,7 +12,7 @@ module.exports = function (app) {
 
     app.get("/registries", async (req, res) => {
         try {
-            const rows = await pool.select("SELECT * FROM registries")
+            const rows = await connection.select("SELECT * FROM registries")
             helper.sendSuccess(res, {
                 success: true,
                 registries: rows.map(({id, name, value}) => {
@@ -50,7 +34,7 @@ module.exports = function (app) {
      */
     app.post("/registries", authMiddleware, async ({body: {name, value}}, res) => {
         try {
-            await pool.query("INSERT INTO registries (name, value) VALUES (?, ?)", [name, JSON.stringify(value)])
+            await connection.query("INSERT INTO registries (name, value) VALUES (?, ?)", [name, JSON.stringify(value)])
             helper.sendSuccess(res, {
                 success: true,
                 message: "success insert"
@@ -71,7 +55,7 @@ module.exports = function (app) {
             return
         }
         try {
-            await pool.query("UPDATE registries SET name=?, value =? WHERE id=?", [name, JSON.stringify(value), id])
+            await connection.query("UPDATE registries SET name=?, value =? WHERE id=?", [name, JSON.stringify(value), id])
             helper.sendSuccess(res, {
                 success: true,
                 message: "success update"
@@ -88,7 +72,7 @@ module.exports = function (app) {
 
     app.delete("/registries/:id", authMiddleware, async ({params: {id}}, res) => {
         try {
-            await pool.query("DELETE FROM registries WHERE id = ?", [id])
+            await connection.query("DELETE FROM registries WHERE id = ?", [id])
             helper.sendSuccess(res, {
                 success: true,
                 message: "success delete"
