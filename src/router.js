@@ -3,6 +3,11 @@ const jwt = require("jsonwebtoken")
 const helper = require("./helper")
 const auth = require("./middlewares/auth")
 
+const MANAGER_USERNAME = process.env.MANAGER_USERNAME || ""
+const MANAGER_PASSWORD = process.env.MANAGER_PASSWORD || ""
+
+const JWT_SECRET = process.env.JWT_SECRET || "default secret"
+
 module.exports = function (app, connection) {
 
     app.get("/", async (req, res) => {
@@ -93,9 +98,12 @@ module.exports = function (app, connection) {
     /**
      * POST /auth/login -> username / password 처리 -> JWT 토큰 반환, exp(24시간?) 반드시 추가할 것!
      */
-    app.get("/auth/manager", auth, async (_, res) => {
+    app.get("/auth/user", auth, async ({decoded}, res) => {
         res.json({
             success: true,
+            user: {
+                username: decoded.username,
+            },
         })
     })
     app.post("/auth/logout", async (_, res) => {
@@ -105,17 +113,18 @@ module.exports = function (app, connection) {
         })
     })
     app.post("/auth/login", async ({body: {username, password}}, res) => {
-        if (!username || !password || username !== process.env.MANAGER_USERNAME || password !== process.env.MANAGER_PASSWORD) {
+        if (!username || !password || username !== MANAGER_USERNAME || password !== MANAGER_PASSWORD) {
             helper.sendFailure(res, helper.error("400", "invalidRequest"))
             return
         }
-        const secret = process.env.JWT_SECRET
         try {
             const token = await new Promise((resolve, reject) => {
-                jwt.sign({
+                jwt.sign(
+                    {
                         username,
                     },
-                    secret, {
+                    JWT_SECRET,
+                    {
                         expiresIn: "1d"
                     },
                     (err, token) => {
@@ -124,8 +133,7 @@ module.exports = function (app, connection) {
                         }
                         resolve(token)
                     }
-                )
-    
+                )    
             })
             res.json({
                 success: true,
