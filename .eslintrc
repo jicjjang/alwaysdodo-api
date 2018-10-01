@@ -1,0 +1,31 @@
+{
+  "extends": "eslint:recommended",
+  "env": {
+    "node": true,
+    "es6": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 8
+  },
+  "rules": {
+    "arrow-parens": "off",
+    "comma-dangle": [
+      "error",
+      "only-multiline",
+      {
+        "objects": "always",
+        "arrays": "always",
+        "functions": "never",
+        "typeLiterals": "never"
+      }
+    ],
+    "interface-name": "off",
+    "max-line-length": "off",
+    "no-console": "off",
+    "no-string-literal": "off",
+    "no-unused-vars": ["error", {"ignore-pattern": "^_"}],
+    "object-literal-sort-keys": "off",
+    "quotes": ["error", "double"],
+    "semi": ["error", "never"]
+  }
+}

@@ -1,5 +1,5 @@
 exports.sendFailure = function (res, err) {
-    var code = (err.code) ? err.code : err.name;
+    var code = (err.code) ? err.code : err.name
     res.writeHead(400, {
         "Content-Type": "application/json;charset=UTF-8"
     })

@@ -1,9 +1,8 @@
 {
   "name": "alwaysdodo-api",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "main": "src/entry.js",
   "scripts": {
+    "lint": "eslint 'src/**/*.js' --format stylish",
     "dev": "nodemon src/entry.js"
   },
   "repository": {
@@ -26,5 +25,8 @@
     "mysql2": "^1.6.1",
     "nodemon": "^1.18.4",
     "npm": "^6.4.1"
+  },
+  "devDependencies": {
+    "eslint": "^5.6.1"
   }
 }
