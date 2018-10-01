@@ -2,6 +2,7 @@
   "name": "alwaysdodo-api",
   "main": "src/entry.js",
   "scripts": {
+    "sqlv": "sqlv",
     "lint": "eslint 'src/**/*.js' --format stylish",
     "dev": "nodemon src/entry.js"
   },
@@ -27,6 +28,7 @@
     "npm": "^6.4.1"
   },
   "devDependencies": {
-    "eslint": "^5.6.1"
+    "eslint": "^5.6.1",
+    "sqlv": "^1.1.1"
   }
 }
