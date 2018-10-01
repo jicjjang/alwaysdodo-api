@@ -1,15 +1,17 @@
 
-const helper = require("./helper")
+const helper = require("../helper")
 const jwt = require("jsonwebtoken")
 
-const authMiddleware = (req, res, next) => {
+const JWT_SECRET = process.env.JWT_SECRET || "default secret"
+
+function auth(req, res, next) {
     const token = (req.headers["authorization"] || "").split("Bearer ")[1]
     if (!token) {
         helper.sendTokenFail(res, "your token is wrong")
         return
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
         if (err) {
             helper.sendTokenFail(res)
         } else {
@@ -19,4 +21,4 @@ const authMiddleware = (req, res, next) => {
     })
 }
 
-module.exports = authMiddleware
+module.exports = auth

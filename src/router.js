@@ -1,9 +1,16 @@
 
 const jwt = require("jsonwebtoken")
 const helper = require("./helper")
-const authMiddleware = require("./auth")
+const auth = require("./middlewares/auth")
 
 module.exports = function (app, connection) {
+
+    app.get("/", async (req, res) => {
+        res.json({
+            success: true,
+            message: "pong",
+        })
+    })
 
     /**
      * AUTH : public 
@@ -11,6 +18,7 @@ module.exports = function (app, connection) {
      */
 
     app.get("/registries", async (req, res) => {
+        
         try {
             const rows = await connection.select("SELECT * FROM registries")
             helper.sendSuccess(res, {
@@ -32,7 +40,7 @@ module.exports = function (app, connection) {
      * 관리자 권한
      * POST /registries -> name, value 입력받고 데이터 추가가능
      */
-    app.post("/registries", authMiddleware, async ({body: {name, value}}, res) => {
+    app.post("/registries", auth, async ({body: {name, value}}, res) => {
         try {
             await connection.query("INSERT INTO registries (name, value) VALUES (?, ?)", [name, JSON.stringify(value)])
             helper.sendSuccess(res, {
@@ -49,7 +57,7 @@ module.exports = function (app, connection) {
      * PUT /registries/:id -> name, value 입력받고 데이터 수정
      */
 
-    app.put("/registries/:id", authMiddleware, async ({params: {id}, body: {name, value}}, res) => {
+    app.put("/registries/:id", auth, async ({params: {id}, body: {name, value}}, res) => {
         if (!name || !value) {
             helper.sendFailure(res, helper.error("400", "invalidRequest"))
             return
@@ -70,7 +78,7 @@ module.exports = function (app, connection) {
      * DELETE /registries/:id -> 해당 레지스트리 삭제
      */
 
-    app.delete("/registries/:id", authMiddleware, async ({params: {id}}, res) => {
+    app.delete("/registries/:id", auth, async ({params: {id}}, res) => {
         try {
             await connection.query("DELETE FROM registries WHERE id = ?", [id])
             helper.sendSuccess(res, {
@@ -85,7 +93,7 @@ module.exports = function (app, connection) {
     /**
      * POST /auth/login -> username / password 처리 -> JWT 토큰 반환, exp(24시간?) 반드시 추가할 것!
      */
-    app.get("/auth/manager", authMiddleware, async (_, res) => {
+    app.get("/auth/manager", auth, async (_, res) => {
         helper.sendSuccess(res, {
             success: true,
         })
