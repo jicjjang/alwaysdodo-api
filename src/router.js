@@ -21,7 +21,7 @@ module.exports = function (app, connection) {
         
         try {
             const rows = await connection.select("SELECT * FROM registries")
-            helper.sendSuccess(res, {
+            res.json({
                 success: true,
                 registries: rows.map(({id, name, value}) => {
                     try {
@@ -43,7 +43,7 @@ module.exports = function (app, connection) {
     app.post("/registries", auth, async ({body: {name, value}}, res) => {
         try {
             await connection.query("INSERT INTO registries (name, value) VALUES (?, ?)", [name, JSON.stringify(value)])
-            helper.sendSuccess(res, {
+            res.json({
                 success: true,
                 message: "success insert"
             })
@@ -64,7 +64,7 @@ module.exports = function (app, connection) {
         }
         try {
             await connection.query("UPDATE registries SET name=?, value =? WHERE id=?", [name, JSON.stringify(value), id])
-            helper.sendSuccess(res, {
+            res.json({
                 success: true,
                 message: "success update"
             })
@@ -81,7 +81,7 @@ module.exports = function (app, connection) {
     app.delete("/registries/:id", auth, async ({params: {id}}, res) => {
         try {
             await connection.query("DELETE FROM registries WHERE id = ?", [id])
-            helper.sendSuccess(res, {
+            res.json({
                 success: true,
                 message: "success delete"
             })
@@ -94,13 +94,13 @@ module.exports = function (app, connection) {
      * POST /auth/login -> username / password 처리 -> JWT 토큰 반환, exp(24시간?) 반드시 추가할 것!
      */
     app.get("/auth/manager", auth, async (_, res) => {
-        helper.sendSuccess(res, {
+        res.json({
             success: true,
         })
     })
     app.post("/auth/logout", async (_, res) => {
         // todo 
-        helper.sendSuccess(res, {
+        res.json({
             success: true,
         })
     })
@@ -126,8 +126,8 @@ module.exports = function (app, connection) {
                     }
                 )
     
-            })    
-            helper.sendSuccess(res, {
+            })
+            res.json({
                 success: true,
                 token: token
             })

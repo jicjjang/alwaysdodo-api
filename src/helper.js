@@ -1,3 +1,4 @@
+
 exports.sendFailure = function (res, err) {
     var code = (err.code) ? err.code : err.name
     res.writeHead(400, {
@@ -10,14 +11,6 @@ exports.sendFailure = function (res, err) {
         message: err.message
     }
     res.end(JSON.stringify(output))
-}
-
-exports.sendSuccess = function (res, datas) {
-    res.writeHead(200, {
-        "Content-Type": "application/json;charset=UTF-8"
-    })
-
-    res.end(JSON.stringify(datas))
 }
 
 exports.error = function (code, message) {
