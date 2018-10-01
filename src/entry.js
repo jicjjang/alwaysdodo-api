@@ -6,6 +6,8 @@ const bodyParser = require("body-parser")
 const cors = require("cors")
 const app = express()
 
+const PORT = parseInt(process.env.PORT || "3000")
+
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use(cors())
@@ -13,6 +15,6 @@ app.use(cors())
 /* router */
 require("./router")(app)
 
-app.listen(3000, () => {
-    console.log("starting server :: port 3000")
+app.listen(PORT, () => {
+    console.log(`Server Started on localhost:${PORT} 🚀`)
 })
