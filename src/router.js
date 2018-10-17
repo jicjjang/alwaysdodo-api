@@ -2,13 +2,32 @@
 const jwt = require("jsonwebtoken")
 const helper = require("./helper")
 const auth = require("./middlewares/auth")
+const multer = require("multer")
+const multerS3 = require("multer-s3")
+const datefns = require("date-fns")
 
 const MANAGER_USERNAME = process.env.MANAGER_USERNAME || ""
 const MANAGER_PASSWORD = process.env.MANAGER_PASSWORD || ""
 
 const JWT_SECRET = process.env.JWT_SECRET || "default secret"
 
-module.exports = function (app, connection) {
+const AWS_S3_ATTACHMENT = process.env.AWS_S3_ATTACHMENT || ""
+
+module.exports = function (app, connection, s3) {
+
+    const uploader = multer({
+        storage: multerS3({
+            s3,
+            bucket: AWS_S3_ATTACHMENT,
+            acl: "public-read",
+            key: (req, file, cb) => {
+                const chunks = file.originalname.split(".")
+                const ext = chunks.pop()
+                const filename = chunks.join(".").toLowerCase().replace(/[^a-z0-9_]/g, "_")
+                cb(null, `attachments/${filename}_${datefns.format(new Date(), "YYMMDD_HHmmss")}.${ext}`)
+            },
+        })
+    })
 
     app.get("/", async (req, res) => {
         res.json({
@@ -51,6 +70,19 @@ module.exports = function (app, connection) {
             res.json({
                 success: true,
                 message: "success insert"
+            })
+        } catch (err) {
+            helper.sendFailure(res, err)
+        }
+    })
+
+    app.post("/attachments", auth, uploader.single("attachment"), async (req, res) => {
+        try {
+            res.json({
+                success: true,
+                attachment: {
+                    path: req.file.location,
+                },
             })
         } catch (err) {
             helper.sendFailure(res, err)

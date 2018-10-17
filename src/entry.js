@@ -1,6 +1,7 @@
 
 require("dotenv").config(process.cwd())
 
+const aws = require("aws-sdk")
 const db = require("async-db-adapter")
 const express = require("express")
 const bodyParser = require("body-parser")
@@ -28,12 +29,14 @@ const connection = db.create({
     queueLimit: 0,
 })
 
+const s3 = new aws.S3()
+
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use(cors())
 
 /* router */
-require("./router")(app, connection)
+require("./router")(app, connection, s3)
 
 app.listen(PORT, () => {
     console.log(`Server Started on localhost:${PORT} 🚀`)
