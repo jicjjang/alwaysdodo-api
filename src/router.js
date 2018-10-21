@@ -95,7 +95,7 @@ module.exports = function (app, connection, s3) {
      */
 
     app.put("/registries/:id", auth, async ({params: {id}, body: {name, value}}, res) => {
-        if (!name || !value) {
+        if (!name || typeof value === "undefined") {
             helper.sendFailure(res, helper.error("400", "invalidRequest"))
             return
         }
