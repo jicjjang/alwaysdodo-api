@@ -133,14 +133,8 @@ module.exports = function (app, connection, s3) {
     })
 
     /**
-     * TODO
-     * QR Generate = `https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=URL`
-     * 
-     * 1. GET Docs
-     * https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get?hl=ko&apix_params=%7B%22spreadsheetId%22%3A%221W3PE7mQREqAD6mctVJWINxuARCZ5iEcRVj2-QGvatT8%22%2C%22range%22%3A%22A3%3AF37%22%2C%22majorDimension%22%3A%22COLUMNS%22%7D
-
-     * 2. POST Docs
-     * https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update?hl=ko&apix_params=%7B%22spreadsheetId%22%3A%221W3PE7mQREqAD6mctVJWINxuARCZ5iEcRVj2-QGvatT8%22%2C%22range%22%3A%22H5%3AH5%22%2C%22valueInputOption%22%3A%22RAW%22%2C%22resource%22%3A%7B%22values%22%3A%5B%5B%22O%22%5D%5D%7D%7D
+     * QR 출석체크
+     * 관리자 로그인 / OAuth로그인 (spreadsheet 권한)이 사전 준비되어야함
      */
     app.post("/qr/check", [auth, oauth], async ({body: {email}}, res) => {
       let userIndex = 0;
@@ -195,7 +189,7 @@ module.exports = function (app, connection, s3) {
       return -1;
     })
 
-    
+
     /**
      * POST /auth/login -> username / password 처리 -> JWT 토큰 반환, exp(24시간?) 반드시 추가할 것!
      */
