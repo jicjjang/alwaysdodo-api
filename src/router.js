@@ -6,12 +6,17 @@ const multer = require("multer")
 const multerS3 = require("multer-s3")
 const datefns = require("date-fns")
 
+const axios = require("axios");
+
 const MANAGER_USERNAME = process.env.MANAGER_USERNAME || ""
 const MANAGER_PASSWORD = process.env.MANAGER_PASSWORD || ""
 
 const JWT_SECRET = process.env.JWT_SECRET || "default secret"
 
 const AWS_S3_ATTACHMENT = process.env.AWS_S3_ATTACHMENT || ""
+
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || ""
+const GOOGLE_SPREADSHEET_ID = process.env.GOOGLE_SPREADSHEET_ID || ""
 
 module.exports = function (app, connection, s3) {
 
@@ -126,6 +131,58 @@ module.exports = function (app, connection, s3) {
             helper.sendFailure(res, err)
         }
     })
+
+    /**
+     * TODO
+     * QR Generate = `https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=URL`
+     * 
+     * 1. GET Docs
+     * https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get?hl=ko&apix_params=%7B%22spreadsheetId%22%3A%221W3PE7mQREqAD6mctVJWINxuARCZ5iEcRVj2-QGvatT8%22%2C%22range%22%3A%22A3%3AF37%22%2C%22majorDimension%22%3A%22COLUMNS%22%7D
+
+     * 2. POST Docs
+     * https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update?hl=ko&apix_params=%7B%22spreadsheetId%22%3A%221W3PE7mQREqAD6mctVJWINxuARCZ5iEcRVj2-QGvatT8%22%2C%22range%22%3A%22H5%3AH5%22%2C%22valueInputOption%22%3A%22RAW%22%2C%22resource%22%3A%7B%22values%22%3A%5B%5B%22O%22%5D%5D%7D%7D
+     */
+    app.post("/qr/check", auth, async ({body: {email}}, res) => {
+        let userIndex = 0;
+        let username = '';
+
+        try {
+            const response = await axios.get(`https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SPREADSHEET_ID}/values/A3%3AB100?majorDimension=COLUMNS&key=${GOOGLE_API_KEY}`)
+            
+            if (response.status && response.status === 200) {
+                userIndex = response.data.values[1].findIndex(val => val === email);
+                if (userIndex < 0) {
+                    helper.sendServerFail(res, "신청하지 않은 사용자입니다.");
+                    return -1;
+                }
+                username = response.data.values[0][userIndex];
+
+            }
+        } catch(e) {
+            helper.sendServerFail(res, "spreadsheet 조회 실패");
+            return -1;
+        }
+
+        try {
+            const response = await axios.put(`https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SPREADSHEET_ID}/values/H${userIndex}%3AH${userIndex}?includeGridData=false&valueInputOption=USER_ENTERED&key=${GOOGLE_API_KEY}`, { values: [[ "O" ]] })
+            
+            if (response.status && response.status === 200 && response.data.spreadsheetId === GOOGLE_SPREADSHEET_ID) {
+                res.json({
+                    success: true,
+                    user: {
+                        username,
+                        email
+                    }
+                })
+            }
+        } catch(e) {
+            helper.sendServerFail(res, "spread 업데이트 실패");
+            return -1;
+        }
+        helper.sendServerFail(res, "알 수 없는 에러");
+        return -1;
+    })
+
 
     /**
      * POST /auth/login -> username / password 처리 -> JWT 토큰 반환, exp(24시간?) 반드시 추가할 것!

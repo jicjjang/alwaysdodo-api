@@ -19,6 +19,7 @@
   "dependencies": {
     "async-db-adapter": "^0.5.1",
     "aws-sdk": "^2.336.0",
+    "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "cors": "^2.8.4",
     "date-fns": "^1.29.0",

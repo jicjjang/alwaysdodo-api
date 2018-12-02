@@ -30,3 +30,15 @@ exports.sendTokenFail = function (res, message) {
     }
     res.end(JSON.stringify(output))
 }
+
+exports.sendServerFail = function (res, message) {
+    res.writeHead(500, {
+        "Content-Type": "application/json;charset=UTF-8"
+    })
+
+    var output = {
+        success: false,
+        message: message || "invalide token"
+    }
+    res.end(JSON.stringify(output))
+}
