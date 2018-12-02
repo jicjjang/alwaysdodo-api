@@ -7,7 +7,7 @@ const multer = require("multer")
 const multerS3 = require("multer-s3")
 const datefns = require("date-fns")
 
-const { google } = require('googleapis');
+const { google } = require('googleapis')
 
 const MANAGER_USERNAME = process.env.MANAGER_USERNAME || ""
 const MANAGER_PASSWORD = process.env.MANAGER_PASSWORD || ""
@@ -133,19 +133,13 @@ module.exports = function (app, connection, s3) {
     })
 
     /**
-     * TODO
-     * QR Generate = `https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=URL`
-     * 
-     * 1. GET Docs
-     * https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get?hl=ko&apix_params=%7B%22spreadsheetId%22%3A%221W3PE7mQREqAD6mctVJWINxuARCZ5iEcRVj2-QGvatT8%22%2C%22range%22%3A%22A3%3AF37%22%2C%22majorDimension%22%3A%22COLUMNS%22%7D
-
-     * 2. POST Docs
-     * https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/update?hl=ko&apix_params=%7B%22spreadsheetId%22%3A%221W3PE7mQREqAD6mctVJWINxuARCZ5iEcRVj2-QGvatT8%22%2C%22range%22%3A%22H5%3AH5%22%2C%22valueInputOption%22%3A%22RAW%22%2C%22resource%22%3A%7B%22values%22%3A%5B%5B%22O%22%5D%5D%7D%7D
+     * QR 출석체크
+     * 관리자 로그인 / OAuth로그인 (spreadsheet 권한)이 사전 준비되어야함
      */
     app.post("/qr/check", [auth, oauth], async ({body: {email}}, res) => {
-      let userIndex = 0;
-      let username = '';
-      const sheets = google.sheets('v4');
+      let userIndex = 0
+      let username = ''
+      const sheets = google.sheets('v4')
 
       try {
         const retrieveResponse = await sheets.spreadsheets.values.get(
@@ -154,19 +148,19 @@ module.exports = function (app, connection, s3) {
             spreadsheetId: GOOGLE_SPREADSHEET_ID,
             majorDimension: 'COLUMNS',
             range: 'A3:B100',
-          });
+          })
 
         if (retrieveResponse && retrieveResponse.status === 200) {
-          userIndex = retrieveResponse.data.values[1].findIndex(val => val === email);
+          userIndex = retrieveResponse.data.values[1].findIndex(val => val === email)
           if (userIndex < 0) {
-              helper.sendServerFail(res, "신청하지 않은 사용자입니다.");
-              return -1;
+              helper.sendServerFail(res, "신청하지 않은 사용자입니다.")
+              return -1
           }
-          username = retrieveResponse.data.values[0][userIndex];
+          username = retrieveResponse.data.values[0][userIndex]
         }
       } catch (e) {
-        helper.sendServerFail(res, "spreadsheet 조회 실패");
-        return -1;
+        helper.sendServerFail(res, "spreadsheet 조회 실패")
+        return -1
       }
       
       try {
@@ -176,7 +170,7 @@ module.exports = function (app, connection, s3) {
           range: `H${userIndex+3}:H${userIndex+3}`,
           valueInputOption: 'USER_ENTERED',
           resource: { values: [[ "O" ]] }
-        });
+        })
 
         if (updateResponse.status === 200) {
           return res.json({
@@ -188,14 +182,14 @@ module.exports = function (app, connection, s3) {
           })
         }
       } catch(e) {
-        helper.sendServerFail(res, "spread 업데이트 실패");
-        return -1;
+        helper.sendServerFail(res, "spread 업데이트 실패")
+        return -1
       }
-      helper.sendServerFail(res, "알 수 없는 에러");
-      return -1;
+      helper.sendServerFail(res, "알 수 없는 에러")
+      return -1
     })
 
-    
+
     /**
      * POST /auth/login -> username / password 처리 -> JWT 토큰 반환, exp(24시간?) 반드시 추가할 것!
      */
