@@ -38,7 +38,20 @@ exports.sendServerFail = function (res, message) {
 
     var output = {
         success: false,
-        message: message || "invalide token"
+        message: message || "Internal server error"
+    }
+    res.end(JSON.stringify(output))
+}
+
+exports.sendOauthUrl = function (res, url, message) {
+    res.writeHead(302, {
+        "Content-Type": "application/json;charset=UTF-8"
+    })
+
+    var output = {
+        success: false,
+        url: url || "",
+        message: message || ""
     }
     res.end(JSON.stringify(output))
 }
