@@ -43,7 +43,7 @@ const oauth = (req, res, next) => {
 }
 
 module.exports = {
-  oauth,
-  oauthClient,
-  oauthAuthorizeUrl
+    oauth,
+    oauthClient,
+    oauthAuthorizeUrl
 }
