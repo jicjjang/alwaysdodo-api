@@ -7,7 +7,7 @@ const multer = require("multer")
 const multerS3 = require("multer-s3")
 const datefns = require("date-fns")
 
-const { google } = require('googleapis');
+const { google } = require('googleapis')
 
 const MANAGER_USERNAME = process.env.MANAGER_USERNAME || ""
 const MANAGER_PASSWORD = process.env.MANAGER_PASSWORD || ""
@@ -137,9 +137,9 @@ module.exports = function (app, connection, s3) {
      * 관리자 로그인 / OAuth로그인 (spreadsheet 권한)이 사전 준비되어야함
      */
     app.post("/qr/check", [auth, oauth], async ({body: {email}}, res) => {
-      let userIndex = 0;
-      let username = '';
-      const sheets = google.sheets('v4');
+      let userIndex = 0
+      let username = ''
+      const sheets = google.sheets('v4')
 
       try {
         const retrieveResponse = await sheets.spreadsheets.values.get(
@@ -148,19 +148,19 @@ module.exports = function (app, connection, s3) {
             spreadsheetId: GOOGLE_SPREADSHEET_ID,
             majorDimension: 'COLUMNS',
             range: 'A3:B100',
-          });
+          })
 
         if (retrieveResponse && retrieveResponse.status === 200) {
-          userIndex = retrieveResponse.data.values[1].findIndex(val => val === email);
+          userIndex = retrieveResponse.data.values[1].findIndex(val => val === email)
           if (userIndex < 0) {
-              helper.sendServerFail(res, "신청하지 않은 사용자입니다.");
-              return -1;
+              helper.sendServerFail(res, "신청하지 않은 사용자입니다.")
+              return -1
           }
-          username = retrieveResponse.data.values[0][userIndex];
+          username = retrieveResponse.data.values[0][userIndex]
         }
       } catch (e) {
-        helper.sendServerFail(res, "spreadsheet 조회 실패");
-        return -1;
+        helper.sendServerFail(res, "spreadsheet 조회 실패")
+        return -1
       }
       
       try {
@@ -170,7 +170,7 @@ module.exports = function (app, connection, s3) {
           range: `H${userIndex+3}:H${userIndex+3}`,
           valueInputOption: 'USER_ENTERED',
           resource: { values: [[ "O" ]] }
-        });
+        })
 
         if (updateResponse.status === 200) {
           return res.json({
@@ -182,11 +182,11 @@ module.exports = function (app, connection, s3) {
           })
         }
       } catch(e) {
-        helper.sendServerFail(res, "spread 업데이트 실패");
-        return -1;
+        helper.sendServerFail(res, "spread 업데이트 실패")
+        return -1
       }
-      helper.sendServerFail(res, "알 수 없는 에러");
-      return -1;
+      helper.sendServerFail(res, "알 수 없는 에러")
+      return -1
     })
 
 
