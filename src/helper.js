@@ -26,7 +26,7 @@ exports.sendTokenFail = (res, message) => {
 
     const output = {
         success: false,
-        message: message || "invalide token"
+        message: message || "invalid token"
     }
     res.end(JSON.stringify(output))
 }

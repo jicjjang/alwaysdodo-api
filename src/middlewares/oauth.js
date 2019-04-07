@@ -23,16 +23,21 @@ const oauthAuthorizeUrl = oauthClient.generateAuthUrl({
 })
 
 const oauth = (req, res, next) => {
+    if (oauthClient.credentials && Object.keys(oauthClient.credentials).length > 0) {
+        next()
+        return 1
+    }
+
     const code = req.body.code
 
     if (code) {
         oauthClient.getToken(code, (err, tokens) => {
             if (err) {
-                helper.sendFailure(res, "invalide oauth token")
+                helper.sendFailure(res, "invalid oauth token")
                 return -1
             }
 
-            oauthClient.credentials = tokens
+            oauthClient.setCredentials(tokens);
             next()
             return 1
         })
